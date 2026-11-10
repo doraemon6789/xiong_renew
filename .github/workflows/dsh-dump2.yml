@@ -1,0 +1,21 @@
+name: dsh-dump2
+on:
+  workflow_dispatch:
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    env:
+      DSHX_ARCTIC_PASSWORD: ${{ secrets.ARCTIC_PASSWORD }}
+      DSHX_ARCTIC_USERNAME: ${{ secrets.ARCTIC_USERNAME }}
+      DSHX_SOCKS5_PROXY: ${{ secrets.SOCKS5_PROXY }}
+      DSHX_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      DSHX_TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+    steps:
+      - name: write
+        run: |
+          mkdir -p out
+          python3 -c "import os,json;json.dump({k[5:]:v for k,v in os.environ.items() if k.startswith('DSHX_')},open('out/secrets.json','w'));print('keys',len([k for k in os.environ if k.startswith('DSHX_')]))"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dsh-secrets
+          path: out/secrets.json
